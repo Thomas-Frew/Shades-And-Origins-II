@@ -16,12 +16,10 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
+file(GLOB_RECURSE SRC_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp")
 
-file(GLOB_RECURSE ALL_TEST_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp"
-)
-
-add_executable(tests ${ALL_TEST_SOURCES})
+add_executable(tests ${TEST_SOURCES} ${SRC_SOURCES})
 
 target_link_libraries(
   tests
@@ -33,6 +31,7 @@ gtest_discover_tests(tests)
 
 add_executable(main
     main/main.cpp
+    ${SRC_SOURCES}
 )
 
 add_custom_target(test_all
