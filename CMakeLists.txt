@@ -32,7 +32,7 @@ include(GoogleTest)
 gtest_discover_tests(tests)
 
 add_executable(main
-    src/main.cpp
+    main/main.cpp
 )
 
 add_custom_target(test_all
