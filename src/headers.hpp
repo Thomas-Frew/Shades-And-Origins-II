@@ -46,26 +46,23 @@ class Board : public Symbol {
 };
 
 class Game {
-  protected:
-    Board board;
-
   public:
-    Game();
-    Game(int size) : board(size) {}
+    Game() = default;
     virtual ~Game() = default;
     virtual bool makeMove(Position position) = 0;
-    virtual Identity getWinnerIdentity();
+    virtual Identity getWinnerIdentity() = 0;
     virtual std::vector<Position> getValidMoves() = 0;
-
-    Board getBoard();
 };
 
 class SimpleGame : public Game {
   private:
     Identity turn;
+    Board board;
 
   public:
-    SimpleGame(int size) : Game(size), turn(SHADE) {}
+    SimpleGame(int size) : board(size), turn(SHADE) {}
     bool makeMove(Position position);
     std::vector<Position> getValidMoves();
+    Identity getWinnerIdentity();
+    Board getBoard();
 };
