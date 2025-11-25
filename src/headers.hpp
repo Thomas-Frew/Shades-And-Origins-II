@@ -16,6 +16,16 @@ class Position {
   public:
     int row;
     int col;
+
+    bool operator<(const Position &other) const {
+        if (row < other.row) return row < other.row;
+        if (col < other.col) return col < other.col;
+        return false;
+    }
+
+    bool operator==(const Position &other) const {
+        return (row == other.row) && (col == other.col);
+    }
 };
 
 class Board : public Symbol {
@@ -45,6 +55,7 @@ class Game {
     virtual ~Game() = default;
     virtual bool makeMove(Position position) = 0;
     virtual Identity getWinnerIdentity();
+    virtual std::vector<Position> getValidMoves() = 0;
 
     Board getBoard();
 };
@@ -56,4 +67,5 @@ class SimpleGame : public Game {
   public:
     SimpleGame(int size) : Game(size), turn(SHADE) {}
     bool makeMove(Position position);
+    std::vector<Position> getValidMoves();
 };
