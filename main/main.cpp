@@ -2,14 +2,12 @@
 #include <iostream>
 
 int main() {
-    SimpleGame simpleGame(3);
+    auto gamePtr = std::make_unique<SimpleGame>(3);
+    auto nodePtr = std::make_unique<MonteCarloNode>(std::move(gamePtr));
 
-    simpleGame.makeMove(Position(0, 0));
-    simpleGame.makeMove(Position(0, 1));
-    simpleGame.makeMove(Position(1, 1));
-    simpleGame.makeMove(Position(0, 2));
-    simpleGame.makeMove(Position(2, 2));
+    MonteCarloSearch monteCarloSearch(std::move(nodePtr), 1.44);
+    monteCarloSearch.simulate(100000);
+    monteCarloSearch.exportDot("../tree.dot", 3);
 
-    std::cout << "GAME BOARD" << '\n';
-    simpleGame.getBoard().printBoard();
+    return 0;
 }
