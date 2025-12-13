@@ -13,7 +13,6 @@ TEST(SimpleGameTest, ValidMovesLimited) {
     auto validMoves = simpleGame.getValidMoves();
     std::sort(validMoves.begin(), validMoves.end());
 
-    simpleGame.getBoard().printBoard();
     EXPECT_EQ(validMoves, expectedMoves);
 }
 
@@ -25,7 +24,6 @@ TEST(SimpleGameTest, ValidMovesAll) {
     auto validMoves = simpleGame.getValidMoves();
     std::sort(validMoves.begin(), validMoves.end());
 
-    simpleGame.getBoard().printBoard();
     EXPECT_EQ(validMoves, expectedMoves);
 }
 
@@ -41,7 +39,6 @@ TEST(SimpleGameTest, NoValidMovesAfterWinRows) {
     auto validMoves = simpleGame.getValidMoves();
     std::sort(validMoves.begin(), validMoves.end());
 
-    simpleGame.getBoard().printBoard();
     EXPECT_EQ(simpleGame.getWinnerIdentity(), SHADE);
 }
 
@@ -57,7 +54,6 @@ TEST(SimpleGameTest, NoValidMovesAfterWinCols) {
     auto validMoves = simpleGame.getValidMoves();
     std::sort(validMoves.begin(), validMoves.end());
 
-    simpleGame.getBoard().printBoard();
     EXPECT_EQ(simpleGame.getWinnerIdentity(), SHADE);
 }
 
@@ -73,7 +69,6 @@ TEST(SimpleGameTest, NoValidMovesAfterWinDiag1) {
     auto validMoves = simpleGame.getValidMoves();
     std::sort(validMoves.begin(), validMoves.end());
 
-    simpleGame.getBoard().printBoard();
     EXPECT_EQ(simpleGame.getWinnerIdentity(), SHADE);
 }
 
@@ -89,7 +84,6 @@ TEST(SimpleGameTest, NoValidMovesAfterWinDiag2) {
     auto validMoves = simpleGame.getValidMoves();
     std::sort(validMoves.begin(), validMoves.end());
 
-    simpleGame.getBoard().printBoard();
     EXPECT_EQ(simpleGame.getWinnerIdentity(), SHADE);
 }
 
@@ -106,6 +100,5 @@ TEST(SimpleGameTest, ValidMovesWithBan) {
     auto validMoves = simpleGame.getValidMoves(bannedMoves);
     std::sort(validMoves.begin(), validMoves.end());
 
-    simpleGame.getBoard().printBoard();
     EXPECT_EQ(validMoves, expectedMoves);
 }

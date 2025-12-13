@@ -14,12 +14,25 @@ class Position {
   public:
     int row;
     int col;
+    int upperRow;
+    int upperCol;
+
+    Position() : row(0), col(0), upperRow(0), upperCol(0) {}
+    Position(int r, int c) : row(r), col(c), upperRow(r), upperCol(c) {}
+    Position(int r, int c, int ur, int uc) : row(r), col(c), upperRow(ur), upperCol(uc) {}
+
     bool operator<(const Position &other) const {
-        if (row < other.row) return true;
-        if (row > other.row) return false;
+        if (upperRow != other.upperRow) return upperRow < other.upperRow;
+        if (upperCol != other.upperCol) return upperCol < other.upperCol;
+        if (row != other.row) return row < other.row;
         return col < other.col;
     }
-    bool operator==(const Position &other) const { return row == other.row && col == other.col; }
+
+    bool operator==(const Position &other) const {
+        return row == other.row && col == other.col && upperRow == other.upperRow && upperCol == other.upperCol;
+    }
+
+    bool operator!=(const Position &other) const { return !(*this == other); }
 };
 
 class Board : public Symbol {
@@ -34,14 +47,13 @@ class Board : public Symbol {
     std::optional<Symbol> getSymbolAtPosition(Position position);
     bool setSymbolAtPosition(Symbol symbol, Position position);
     void printBoard();
-    std::string stringBoard();
+    std::string stringify();
 };
 
 class Game {
   public:
     Game() = default;
     virtual ~Game() = default;
-    virtual Board getBoard() = 0;
     virtual Identity getPlayerIdentity() = 0;
     virtual bool makeMove(Position position) = 0;
     virtual std::optional<Identity> getWinnerIdentity() = 0;
@@ -49,6 +61,7 @@ class Game {
     virtual std::vector<Position> getValidMoves(std::vector<Position> bannedMoves) = 0;
     virtual std::optional<Position> getRandomValidMove() = 0;
     virtual std::optional<Position> getRandomValidMove(std::vector<Position> bannedMoves) = 0;
+    virtual std::string getGameData() = 0;
     virtual GamePtr clone() = 0;
 };
 
@@ -60,7 +73,6 @@ class SimpleGame : public Game {
   public:
     SimpleGame(int size) : board(size), turn(SHADE) {}
 
-    Board getBoard();
     Identity getPlayerIdentity();
 
     bool makeMove(Position position);
@@ -72,6 +84,30 @@ class SimpleGame : public Game {
     std::optional<Position> getRandomValidMove();
     std::optional<Position> getRandomValidMove(std::vector<Position> bannedMoves);
 
+    std::string getGameData();
+    GamePtr clone();
+};
+
+class StrategicGame : public Game {
+  private:
+    Identity turn;
+    Board board;
+
+  public:
+    StrategicGame(int size) : board(size), turn(SHADE) {}
+
+    Identity getPlayerIdentity();
+
+    bool makeMove(Position position);
+    std::optional<Identity> getWinnerIdentity();
+
+    std::vector<Position> getValidMoves();
+    std::vector<Position> getValidMoves(std::vector<Position> bannedMoves);
+
+    std::optional<Position> getRandomValidMove();
+    std::optional<Position> getRandomValidMove(std::vector<Position> bannedMoves);
+
+    std::string getGameData();
     GamePtr clone();
 };
 

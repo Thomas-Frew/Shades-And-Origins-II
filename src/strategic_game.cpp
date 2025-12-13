@@ -3,15 +3,15 @@
 #include <unordered_map>
 #include <vector>
 
-Identity SimpleGame::getPlayerIdentity() {
+Identity StrategicGame::getPlayerIdentity() {
     return turn;
 }
 
-std::string SimpleGame::getGameData() {
+std::string StrategicGame::getGameData() {
     return board.stringify();
 }
 
-std::optional<Identity> SimpleGame::getWinnerIdentity() {
+std::optional<Identity> StrategicGame::getWinnerIdentity() {
     int size = board.getSize();
 
     for (int row = 0; row < size; row++) {
@@ -83,7 +83,7 @@ std::optional<Identity> SimpleGame::getWinnerIdentity() {
     return std::nullopt;
 }
 
-bool SimpleGame::makeMove(Position position) {
+bool StrategicGame::makeMove(Position position) {
     if (getWinnerIdentity().has_value()) {
         return false;
     }
@@ -95,11 +95,11 @@ bool SimpleGame::makeMove(Position position) {
     return true;
 }
 
-std::vector<Position> SimpleGame::getValidMoves() {
+std::vector<Position> StrategicGame::getValidMoves() {
     return getValidMoves(std::vector<Position>{});
 }
 
-std::vector<Position> SimpleGame::getValidMoves(std::vector<Position> bannedMoves) {
+std::vector<Position> StrategicGame::getValidMoves(std::vector<Position> bannedMoves) {
     std::vector<Position> validMoves;
     if (getWinnerIdentity().has_value()) {
         return validMoves;
@@ -118,11 +118,11 @@ std::vector<Position> SimpleGame::getValidMoves(std::vector<Position> bannedMove
     return validMoves;
 }
 
-std::optional<Position> SimpleGame::getRandomValidMove() {
+std::optional<Position> StrategicGame::getRandomValidMove() {
     return getRandomValidMove(std::vector<Position>{});
 }
 
-std::optional<Position> SimpleGame::getRandomValidMove(std::vector<Position> bannedMoves) {
+std::optional<Position> StrategicGame::getRandomValidMove(std::vector<Position> bannedMoves) {
     std::vector<Position> validMoves = getValidMoves(bannedMoves);
     if (validMoves.empty()) {
         return std::nullopt;
@@ -135,6 +135,6 @@ std::optional<Position> SimpleGame::getRandomValidMove(std::vector<Position> ban
     return validMoves[dist(gen)];
 }
 
-GamePtr SimpleGame::clone() {
-    return std::make_unique<SimpleGame>(*this);
+GamePtr StrategicGame::clone() {
+    return std::make_unique<StrategicGame>(*this);
 }

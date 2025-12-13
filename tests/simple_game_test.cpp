@@ -10,7 +10,6 @@ TEST(SimpleGameTest, RaceToTheEnd) {
     EXPECT_TRUE(simpleGame.makeMove(Position(1, 1)));
     EXPECT_TRUE(simpleGame.makeMove(Position(2, 0)));
 
-    simpleGame.getBoard().printBoard();
     EXPECT_EQ(simpleGame.getWinnerIdentity(), SHADE);
 }
 
@@ -27,7 +26,6 @@ TEST(SimpleGameTest, CheatersLeague) {
     EXPECT_TRUE(simpleGame.makeMove(Position(0, 2)));
     EXPECT_TRUE(simpleGame.makeMove(Position(2, 1)));
 
-    simpleGame.getBoard().printBoard();
     EXPECT_EQ(simpleGame.getWinnerIdentity(), ORIGIN);
 }
 
@@ -40,7 +38,6 @@ TEST(SimpleGameTest, Diagonal) {
     EXPECT_TRUE(simpleGame.makeMove(Position(0, 2)));
     EXPECT_TRUE(simpleGame.makeMove(Position(2, 2)));
 
-    simpleGame.getBoard().printBoard();
     EXPECT_EQ(simpleGame.getWinnerIdentity(), SHADE);
 }
 
@@ -55,6 +52,5 @@ TEST(SimpleGameTest, ColumnNoPlayAfterWin) {
     EXPECT_FALSE(simpleGame.makeMove(Position(2, 2)));
     EXPECT_FALSE(simpleGame.makeMove(Position(-1, -1)));
 
-    simpleGame.getBoard().printBoard();
     EXPECT_EQ(simpleGame.getWinnerIdentity(), SHADE);
 }

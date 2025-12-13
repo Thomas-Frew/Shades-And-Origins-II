@@ -47,7 +47,7 @@ void Board::printBoard() {
     }
 }
 
-std::string Board::stringBoard() {
+std::string Board::stringify() {
     std::string result;
 
     for (int row = 0; row < size; row++) {

@@ -23,16 +23,3 @@ TEST(BoardTest, OutOfBounds) {
 
     EXPECT_FALSE(board.setSymbolAtPosition(shadeSymbol, pos));
 }
-
-TEST(BoardTest, RaceToTheEnd) {
-    SimpleGame simpleGame(3);
-
-    EXPECT_TRUE(simpleGame.makeMove(Position(0, 0)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(0, 1)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(1, 0)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(1, 1)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(2, 0)));
-
-    simpleGame.getBoard().printBoard();
-    EXPECT_EQ(simpleGame.getWinnerIdentity(), SHADE);
-}
