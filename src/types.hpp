@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -13,7 +14,7 @@
 inline constexpr double root2 = 1.41;
 
 // Types
-enum Identity { UNKNOWN, SHADE, ORIGIN };
+enum Identity { SHADE, ORIGIN };
 
 inline std::string identityString(Identity id) {
     switch (id) {
@@ -22,7 +23,7 @@ inline std::string identityString(Identity id) {
     case ORIGIN:
         return "O";
     default:
-        return ".";
+        std::abort();
     }
 }
 
@@ -33,7 +34,7 @@ inline std::string identityToColor(Identity id) {
     case ORIGIN:
         return "O";
     default:
-        return ".";
+        std::abort();
     }
 }
 
@@ -44,7 +45,7 @@ inline Identity invertIdentity(Identity id) {
     case ORIGIN:
         return SHADE;
     default:
-        return UNKNOWN;
+        std::abort();
     }
 }
 

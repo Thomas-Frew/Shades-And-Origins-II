@@ -38,7 +38,7 @@ Identity MonteCarloNode::getDominantPlayer() {
 
 void MonteCarloNode::toDot(std::ofstream &out, int &nodeId, int maxChildren) {
     int currentId = nodeId++;
-    std::string boardStr = game->getGameData();
+    std::string boardStr = game->toDot();
 
     std::string fillColor = white;
     std::string fontColor = black;
@@ -46,9 +46,9 @@ void MonteCarloNode::toDot(std::ofstream &out, int &nodeId, int maxChildren) {
     if (game->getWinnerIdentity().has_value()) {
         fontColor = white;
         if (game->getWinnerIdentity().value() == SHADE) {
-            fillColor = blue;
-        } else if (game->getWinnerIdentity().value() == ORIGIN) {
             fillColor = red;
+        } else if (game->getWinnerIdentity().value() == ORIGIN) {
+            fillColor = blue;
         }
     } else {
         if (getDominantPlayer() == SHADE) {

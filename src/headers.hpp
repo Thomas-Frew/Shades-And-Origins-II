@@ -2,12 +2,12 @@
 #include "types.hpp"
 class Symbol {
   private:
-    Identity identity;
+    std::optional<Identity> identity;
 
   public:
-    Symbol() : identity(UNKNOWN) {}
-    Symbol(Identity i) : identity(i) {}
-    Identity getIdentity();
+    Symbol() : identity(std::nullopt) {}
+    Symbol(std::optional<Identity> i) : identity(i) {}
+    std::optional<Identity> getIdentity();
 };
 
 class Position {
@@ -51,51 +51,57 @@ class Move {
     }
 };
 
-class Board : public Symbol {
+template <typename T> class Board : public Symbol {
   private:
     int size;
-    std::vector<std::vector<std::optional<Symbol>>> data;
+    std::vector<std::vector<std::optional<T>>> data;
 
   public:
-    Board() : Board(0) {}
+    Board() : Symbol(std::nullopt), size(0), data() {}
     Board(int s) : Board(s, std::nullopt) {}
-    Board(int s, std::optional<Symbol> symbol) : size(s), data(s, std::vector<std::optional<Symbol>>(s, symbol)) {}
+    Board(int s, std::optional<T> value) : size(s), data(s, std::vector<std::optional<T>>(s, value)) {}
 
     int getSize();
-    bool validatePosition(Position position);
-    std::optional<Symbol> getSymbolAtPosition(Position position);
-    bool setSymbolAtPosition(Symbol symbol, Position position);
-    void printBoard();
-    std::string stringify();
+    bool validatePosition(Position pos);
+
+    std::optional<T> getValueAtPosition(Position pos);
+    std::optional<T> &getValueAtPositionRef(Position pos);
+    bool setValueAtPosition(T value, Position pos);
+
+    std::optional<Identity> getIdentity();
 };
+
+template class Board<Symbol>;
+template class Board<Board<Symbol>>;
 
 class Game {
   public:
     Game() = default;
     virtual ~Game() = default;
     virtual Identity getPlayerIdentity() = 0;
-    virtual bool makeMove(Move move) = 0;
     virtual std::optional<Identity> getWinnerIdentity() = 0;
+    virtual bool makeMove(Move move) = 0;
     virtual std::vector<Move> getValidMoves() = 0;
     virtual std::vector<Move> getValidMoves(std::vector<Move> bannedMoves) = 0;
     virtual std::optional<Move> getRandomValidMove() = 0;
     virtual std::optional<Move> getRandomValidMove(std::vector<Move> bannedMoves) = 0;
-    virtual std::string getGameData() = 0;
+    virtual std::string stringify() = 0;
+    virtual std::string toDot() = 0;
     virtual GamePtr clone() = 0;
 };
 
 class SimpleGame : public Game {
   private:
     Identity turn;
-    Board board;
+    Board<Symbol> board;
 
   public:
     SimpleGame(int size) : board(size), turn(SHADE) {}
 
     Identity getPlayerIdentity();
+    std::optional<Identity> getWinnerIdentity();
 
     bool makeMove(Move move);
-    std::optional<Identity> getWinnerIdentity();
 
     std::vector<Move> getValidMoves();
     std::vector<Move> getValidMoves(std::vector<Move> bannedMoves);
@@ -103,34 +109,37 @@ class SimpleGame : public Game {
     std::optional<Move> getRandomValidMove();
     std::optional<Move> getRandomValidMove(std::vector<Move> bannedMoves);
 
-    std::string getGameData();
+    std::string stringify();
+    std::string toDot();
     GamePtr clone();
 };
 
-// class StrategicGame : public Game {
-//   private:
-//     int upperSize;
-//     Identity turn;
-//     std::vector<Position> activePositions;
-//     Board upperBoard;
+class StrategicGame : public Game {
+  private:
+    Identity turn;
+    std::vector<Position> activeUpperPositions;
+    Board<Board<Symbol>> upperBoard;
 
-//   public:
-//     StrategicGame(int) : board(size), turn(SHADE) {}
+  public:
+    StrategicGame(int size, int upperSize);
 
-//     Identity getPlayerIdentity();
+    Identity getPlayerIdentity();
+    std::optional<Identity> getWinnerIdentity();
 
-//     bool makeMove(Move move);
-//     std::optional<Identity> getWinnerIdentity();
+    bool makeMove(Move move);
 
-//     std::vector<Move> getValidMoves();
-//     std::vector<Move> getValidMoves(std::vector<Move> bannedMoves);
+    std::vector<Position> getValidUpperPositions();
 
-//     std::optional<Move> getRandomValidMove();
-//     std::optional<Move> getRandomValidMove(std::vector<Move> bannedMoves);
+    std::vector<Move> getValidMoves();
+    std::vector<Move> getValidMoves(std::vector<Move> bannedMoves);
 
-//     std::string getGameData();
-//     GamePtr clone();
-// };
+    std::optional<Move> getRandomValidMove();
+    std::optional<Move> getRandomValidMove(std::vector<Move> bannedMoves);
+
+    std::string stringify();
+    std::string toDot();
+    GamePtr clone();
+};
 
 class MonteCarloNode {
   public:

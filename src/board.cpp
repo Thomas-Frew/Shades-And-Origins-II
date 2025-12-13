@@ -2,68 +2,83 @@
 #include <iostream>
 #include <string>
 
-bool Board::validatePosition(Position position) {
+template <typename T> bool Board<T>::validatePosition(Position position) {
     return (position.row >= 0 && position.row < size && position.col >= 0 && position.col < size);
 }
 
-std::optional<Symbol> Board::getSymbolAtPosition(Position position) {
-    if (!validatePosition(position)) {
-        return std::nullopt;
-    }
-
-    return data[position.row][position.col];
+template <typename T> std::optional<T> Board<T>::getValueAtPosition(Position pos) {
+    return data[pos.row][pos.col];
 }
 
-bool Board::setSymbolAtPosition(Symbol symbol, Position position) {
-    if (!validatePosition(position)) {
+template <typename T> std::optional<T> &Board<T>::getValueAtPositionRef(Position pos) {
+    return data[pos.row][pos.col];
+}
+
+template <typename T> bool Board<T>::setValueAtPosition(T value, Position pos) {
+    if (!validatePosition(pos) || data[pos.row][pos.col].has_value()) {
         return false;
     }
-
-    if (getSymbolAtPosition(position).has_value()) {
-        return false;
-    }
-
-    data[position.row][position.col] = symbol;
+    data[pos.row][pos.col] = value;
     return true;
 }
 
-int Board::getSize() {
+template <typename T> int Board<T>::getSize() {
     return size;
 }
 
-void Board::printBoard() {
-    for (int row = 0; row < size; row++) {
-        for (int col = 0; col < size; col++) {
-            std::string id = ".";
-            std::optional<Symbol> symbol = getSymbolAtPosition(Position(row, col));
+template <typename T> std::optional<Identity> Board<T>::getIdentity() {
+    int size = getSize();
 
-            if (symbol.has_value()) {
-                id = identityString(symbol.value().getIdentity());
-            }
+    auto getCellIdentity = [&](const Position &pos) -> std::optional<Identity> {
+        std::optional<T> cellOpt = getValueAtPosition(pos);
+        if (!cellOpt.has_value()) return std::nullopt;
 
-            std::cout << id << ' ';
+        if constexpr (std::is_base_of<Symbol, T>::value) {
+            return cellOpt->getIdentity();
+        } else {
+            return std::nullopt;
         }
-        std::cout << '\n';
-    }
-}
-
-std::string Board::stringify() {
-    std::string result;
+    };
 
     for (int row = 0; row < size; row++) {
+        std::unordered_map<Identity, int> freq;
         for (int col = 0; col < size; col++) {
-            std::string id = ".";
-            std::optional<Symbol> symbol = getSymbolAtPosition(Position(row, col));
-
-            if (symbol.has_value()) {
-                id = identityString(symbol.value().getIdentity());
-            }
-
-            result += id;
-            if (col < size - 1) result += " ";
+            auto idOpt = getCellIdentity(Position(row, col));
+            if (idOpt.has_value()) freq[idOpt.value()]++;
         }
-        result += "\\n";
+        for (auto [k, v] : freq)
+            if (v == size) return k;
     }
 
-    return result;
+    for (int col = 0; col < size; col++) {
+        std::unordered_map<Identity, int> freq;
+        for (int row = 0; row < size; row++) {
+            auto idOpt = getCellIdentity(Position(row, col));
+            if (idOpt.has_value()) freq[idOpt.value()]++;
+        }
+        for (auto [k, v] : freq)
+            if (v == size) return k;
+    }
+
+    {
+        std::unordered_map<Identity, int> freq;
+        for (int i = 0; i < size; i++) {
+            auto idOpt = getCellIdentity(Position(i, i));
+            if (idOpt.has_value()) freq[idOpt.value()]++;
+        }
+        for (auto [k, v] : freq)
+            if (v == size) return k;
+    }
+
+    {
+        std::unordered_map<Identity, int> freq;
+        for (int i = 0; i < size; i++) {
+            auto idOpt = getCellIdentity(Position(i, size - 1 - i));
+            if (idOpt.has_value()) freq[idOpt.value()]++;
+        }
+        for (auto [k, v] : freq)
+            if (v == size) return k;
+    }
+
+    return std::nullopt;
 }

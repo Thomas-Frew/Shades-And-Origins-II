@@ -1,143 +1,177 @@
-// #include "headers.hpp"
+#include "headers.hpp"
 
-// StrategicGame::StrategicGame(int size, int upperSize) {
-//     upperBoard = Board(upperSize, Board(size));
-//     turn = SHADE;
-// }
+StrategicGame::StrategicGame(int size, int upperSize) {
+    upperBoard = Board<Board<Symbol>>(upperSize, Board<Symbol>(size));
+    turn = SHADE;
+    activeUpperPositions = getValidUpperPositions();
+}
 
-// Identity SimpleGame::getPlayerIdentity() {
-//     return turn;
-// }
+Identity StrategicGame::getPlayerIdentity() {
+    return turn;
+}
 
-// std::string SimpleGame::getGameData() {
-//     return board.stringify();
-// }
+bool StrategicGame::makeMove(Move move) {
+    if (upperBoard.getIdentity().has_value()) return false;
 
-// std::optional<Identity> SimpleGame::getWinnerIdentity() {
-//     int size = board.getSize();
+    auto upperPosition = move.getUpperPosition();
+    if (!upperBoard.validatePosition(upperPosition)) return false;
 
-//     for (int row = 0; row < size; row++) {
-//         std::unordered_map<Identity, int> freq;
+    auto &lowerBoardOpt = upperBoard.getValueAtPositionRef(upperPosition);
+    if (!lowerBoardOpt.has_value()) return false;
 
-//         for (int col = 0; col < size; col++) {
-//             std::optional<Symbol> symbol = board.getSymbolAtPosition(Position(row, col));
-//             if (symbol) {
-//                 freq[symbol.value().getIdentity()]++;
-//             }
-//         }
+    Board<Symbol> &board = *lowerBoardOpt;
+    if (board.getIdentity().has_value()) return false;
 
-//         for (auto [k, v] : freq) {
-//             if (v == size) {
-//                 return k;
-//             }
-//         }
-//     }
+    auto lowerPosition = move.getLowerPosition();
+    bool moveSuccess = board.setValueAtPosition(Symbol(turn), lowerPosition);
+    if (!moveSuccess) return false;
 
-//     for (int col = 0; col < size; col++) {
-//         std::unordered_map<Identity, int> freq;
+    if (!board.getIdentity().has_value()) {
+        activeUpperPositions = {lowerPosition};
+    } else {
+        activeUpperPositions = getValidUpperPositions();
+    }
 
-//         for (int row = 0; row < size; row++) {
-//             std::optional<Symbol> symbol = board.getSymbolAtPosition(Position(row, col));
-//             if (symbol) {
-//                 freq[symbol.value().getIdentity()]++;
-//             }
-//         }
+    turn = invertIdentity(turn);
+    return true;
+}
 
-//         for (auto [k, v] : freq) {
-//             if (v == size) {
-//                 return k;
-//             }
-//         }
-//     }
+std::vector<Move> StrategicGame::getValidMoves() {
+    return getValidMoves(std::vector<Move>{});
+}
 
-//     {
-//         std::unordered_map<Identity, int> freq;
-//         for (int i = 0; i < board.getSize(); i++) {
-//             std::optional<Symbol> symbol = board.getSymbolAtPosition(Position(i, i));
-//             if (symbol) {
-//                 freq[symbol.value().getIdentity()]++;
-//             }
-//         }
+std::vector<Move> StrategicGame::getValidMoves(std::vector<Move> bannedMoves) {
+    std::vector<Move> validMoves;
+    if (upperBoard.getIdentity().has_value()) return validMoves;
 
-//         for (auto [k, v] : freq) {
-//             if (v == size) {
-//                 return k;
-//             }
-//         }
-//     }
+    if (activeUpperPositions.empty()) activeUpperPositions = getValidUpperPositions();
 
-//     {
-//         std::unordered_map<Identity, int> freq;
-//         for (int i = 0; i < board.getSize(); i++) {
-//             std::optional<Symbol> symbol = board.getSymbolAtPosition(Position(i, board.getSize() - 1 - i));
-//             if (symbol) {
-//                 freq[symbol.value().getIdentity()]++;
-//             }
-//         }
+    for (auto upperPos : activeUpperPositions) {
+        auto lowerBoardPtr = upperBoard.getValueAtPosition(upperPos);
+        if (!lowerBoardPtr) continue;
 
-//         for (auto [k, v] : freq) {
-//             if (v == size) {
-//                 return k;
-//             }
-//         }
-//     }
+        Board<Symbol> board = *lowerBoardPtr;
+        if (board.getIdentity().has_value()) continue;
 
-//     return std::nullopt;
-// }
+        int size = board.getSize();
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Position pos(row, col);
+                Move move(row, col, upperPos.row, upperPos.col);
+                if (!board.getValueAtPosition(pos).has_value() && std::count(bannedMoves.begin(), bannedMoves.end(), move) == 0) {
+                    validMoves.push_back(move);
+                }
+            }
+        }
+    }
 
-// bool SimpleGame::makeMove(Move move) {
-//     if (getWinnerIdentity().has_value()) {
-//         return false;
-//     }
+    return validMoves;
+}
 
-//     bool moveSuccess = board.setSymbolAtPosition(Symbol(turn), move.getLowerPosition());
-//     if (!moveSuccess) return false;
+std::vector<Position> StrategicGame::getValidUpperPositions() {
+    std::vector<Position> validUpperPositions;
+    if (upperBoard.getIdentity().has_value()) return validUpperPositions;
 
-//     turn = invertIdentity(turn);
-//     return true;
-// }
+    int upperSize = upperBoard.getSize();
+    for (int row = 0; row < upperSize; row++) {
+        for (int col = 0; col < upperSize; col++) {
+            Position pos(row, col);
+            auto lowerBoardPtr = upperBoard.getValueAtPosition(pos);
+            if (lowerBoardPtr && !lowerBoardPtr->getIdentity().has_value()) {
+                validUpperPositions.push_back(pos);
+            }
+        }
+    }
 
-// std::vector<Move> SimpleGame::getValidMoves() {
-//     return getValidMoves(std::vector<Move>{});
-// }
+    return validUpperPositions;
+}
 
-// std::vector<Move> SimpleGame::getValidMoves(std::vector<Move> bannedMoves) {
-//     std::vector<Move> validMoves;
-//     if (getWinnerIdentity().has_value()) {
-//         return validMoves;
-//     }
+std::optional<Move> StrategicGame::getRandomValidMove() {
+    return getRandomValidMove(std::vector<Move>{});
+}
 
-//     int size = board.getSize();
-//     for (int row = 0; row < size; row++) {
-//         for (int col = 0; col < size; col++) {
-//             Move move(row, col);
-//             Position pos(row, col);
-//             if (!board.getSymbolAtPosition(pos).has_value() && std::count(bannedMoves.begin(), bannedMoves.end(), move) == 0) {
-//                 validMoves.push_back(move);
-//             }
-//         }
-//     }
+std::optional<Move> StrategicGame::getRandomValidMove(std::vector<Move> bannedMoves) {
+    auto validMoves = getValidMoves(bannedMoves);
+    if (validMoves.empty()) return std::nullopt;
 
-//     return validMoves;
-// }
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(0, validMoves.size() - 1);
 
-// std::optional<Move> SimpleGame::getRandomValidMove() {
-//     return getRandomValidMove(std::vector<Move>{});
-// }
+    return validMoves[dist(gen)];
+}
 
-// std::optional<Move> SimpleGame::getRandomValidMove(std::vector<Move> bannedMoves) {
-//     std::vector<Move> validMoves = getValidMoves(bannedMoves);
-//     if (validMoves.empty()) {
-//         return std::nullopt;
-//     }
+GamePtr StrategicGame::clone() {
+    return std::make_unique<StrategicGame>(*this);
+}
 
-//     static std::random_device rd;
-//     static std::mt19937 gen(rd());
-//     std::uniform_int_distribution<> dist(0, validMoves.size() - 1);
+std::optional<Identity> StrategicGame::getWinnerIdentity() {
+    return upperBoard.getIdentity();
+}
 
-//     return validMoves[dist(gen)];
-// }
+std::string StrategicGame::stringify() {
+    int upperSize = upperBoard.getSize();
+    if (upperSize == 0) return "";
 
-// GamePtr SimpleGame::clone() {
-//     return std::make_unique<SimpleGame>(*this);
-// }
+    int lowerSize = upperBoard.getValueAtPosition(Position(0, 0))->getSize();
+    std::string result;
+
+    for (int uRow = 0; uRow < upperSize; uRow++) {
+        for (int lRow = 0; lRow < lowerSize; lRow++) {
+            for (int uCol = 0; uCol < upperSize; uCol++) {
+                auto lowerBoardPtr = upperBoard.getValueAtPosition(Position(uRow, uCol));
+                for (int lCol = 0; lCol < lowerSize; lCol++) {
+                    std::string cell = ".";
+                    if (lowerBoardPtr) {
+                        auto symbolOpt = lowerBoardPtr->getValueAtPosition(Position(lRow, lCol));
+                        if (symbolOpt.has_value()) {
+                            cell = identityString(symbolOpt->getIdentity().value());
+                        }
+                    }
+                    result += cell;
+                    if (lCol < lowerSize - 1) result += " ";
+                }
+                if (uCol < upperSize - 1) result += " | ";
+            }
+            result += "\n";
+        }
+        if (uRow < upperSize - 1) result += std::string((lowerSize * (upperSize + 1)) * 2 - 2, '-') + "\n";
+    }
+
+    return result;
+}
+
+std::string StrategicGame::toDot() {
+    int upperSize = upperBoard.getSize();
+    if (upperSize == 0) return "";
+
+    int lowerSize = 0;
+    auto firstLower = upperBoard.getValueAtPosition(Position(0, 0));
+    if (firstLower) lowerSize = firstLower->getSize();
+
+    std::string result;
+
+    for (int uRow = 0; uRow < upperSize; uRow++) {
+        for (int lRow = 0; lRow < lowerSize; lRow++) {
+            for (int uCol = 0; uCol < upperSize; uCol++) {
+                auto lowerBoardPtr = upperBoard.getValueAtPosition(Position(uRow, uCol));
+                for (int lCol = 0; lCol < lowerSize; lCol++) {
+                    std::string cell = ".";
+                    if (lowerBoardPtr) {
+                        auto symbolOpt = lowerBoardPtr->getValueAtPosition(Position(lRow, lCol));
+                        if (symbolOpt.has_value()) {
+                            cell = identityString(symbolOpt->getIdentity().value());
+                        }
+                    }
+                    result += cell;
+                    if (lCol < lowerSize - 1) result += " ";
+                }
+                if (uCol < upperSize - 1) result += " | ";
+            }
+            result += "\\n"; // use escaped newline for DOT labels
+        }
+        if (uRow < upperSize - 1) result += std::string((lowerSize * (upperSize + 1)) * 2 - 2, '-') + "\\n";
+    }
+
+    return result;
+}

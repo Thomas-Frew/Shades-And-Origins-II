@@ -1,5 +1,5 @@
 #include "headers.hpp"
 
-Identity Symbol::getIdentity() {
+std::optional<Identity> Symbol::getIdentity() {
     return identity;
 }
