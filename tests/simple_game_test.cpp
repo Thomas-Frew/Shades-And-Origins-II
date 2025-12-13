@@ -4,11 +4,11 @@
 TEST(SimpleGameTest, RaceToTheEnd) {
     SimpleGame simpleGame(3);
 
-    EXPECT_TRUE(simpleGame.makeMove(Position(0, 0)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(0, 1)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(1, 0)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(1, 1)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(2, 0)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(0, 0)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(0, 1)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(1, 0)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(1, 1)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(2, 0)));
 
     EXPECT_EQ(simpleGame.getWinnerIdentity(), SHADE);
 }
@@ -16,15 +16,15 @@ TEST(SimpleGameTest, RaceToTheEnd) {
 TEST(SimpleGameTest, CheatersLeague) {
     SimpleGame simpleGame(3);
 
-    EXPECT_TRUE(simpleGame.makeMove(Position(0, 0)));
-    EXPECT_FALSE(simpleGame.makeMove(Position(0, 0)));
-    EXPECT_FALSE(simpleGame.makeMove(Position(3, 3)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(2, 2)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(1, 0)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(2, 0)));
-    EXPECT_FALSE(simpleGame.makeMove(Position(2, 0)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(0, 2)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(2, 1)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(0, 0)));
+    EXPECT_FALSE(simpleGame.makeMove(Move(0, 0)));
+    EXPECT_FALSE(simpleGame.makeMove(Move(3, 3)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(2, 2)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(1, 0)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(2, 0)));
+    EXPECT_FALSE(simpleGame.makeMove(Move(2, 0)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(0, 2)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(2, 1)));
 
     EXPECT_EQ(simpleGame.getWinnerIdentity(), ORIGIN);
 }
@@ -32,11 +32,11 @@ TEST(SimpleGameTest, CheatersLeague) {
 TEST(SimpleGameTest, Diagonal) {
     SimpleGame simpleGame(3);
 
-    EXPECT_TRUE(simpleGame.makeMove(Position(0, 0)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(0, 1)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(1, 1)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(0, 2)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(2, 2)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(0, 0)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(0, 1)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(1, 1)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(0, 2)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(2, 2)));
 
     EXPECT_EQ(simpleGame.getWinnerIdentity(), SHADE);
 }
@@ -44,13 +44,13 @@ TEST(SimpleGameTest, Diagonal) {
 TEST(SimpleGameTest, ColumnNoPlayAfterWin) {
     SimpleGame simpleGame(3);
 
-    EXPECT_TRUE(simpleGame.makeMove(Position(0, 0)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(0, 1)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(1, 0)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(0, 2)));
-    EXPECT_TRUE(simpleGame.makeMove(Position(2, 0)));
-    EXPECT_FALSE(simpleGame.makeMove(Position(2, 2)));
-    EXPECT_FALSE(simpleGame.makeMove(Position(-1, -1)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(0, 0)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(0, 1)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(1, 0)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(0, 2)));
+    EXPECT_TRUE(simpleGame.makeMove(Move(2, 0)));
+    EXPECT_FALSE(simpleGame.makeMove(Move(2, 2)));
+    EXPECT_FALSE(simpleGame.makeMove(Move(-1, -1)));
 
     EXPECT_EQ(simpleGame.getWinnerIdentity(), SHADE);
 }

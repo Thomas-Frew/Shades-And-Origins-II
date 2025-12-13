@@ -83,24 +83,24 @@ std::optional<Identity> SimpleGame::getWinnerIdentity() {
     return std::nullopt;
 }
 
-bool SimpleGame::makeMove(Position position) {
+bool SimpleGame::makeMove(Move move) {
     if (getWinnerIdentity().has_value()) {
         return false;
     }
 
-    bool moveSuccess = board.setSymbolAtPosition(Symbol(turn), position);
+    bool moveSuccess = board.setSymbolAtPosition(Symbol(turn), move.getLowerPosition());
     if (!moveSuccess) return false;
 
     turn = invertIdentity(turn);
     return true;
 }
 
-std::vector<Position> SimpleGame::getValidMoves() {
-    return getValidMoves(std::vector<Position>{});
+std::vector<Move> SimpleGame::getValidMoves() {
+    return getValidMoves(std::vector<Move>{});
 }
 
-std::vector<Position> SimpleGame::getValidMoves(std::vector<Position> bannedMoves) {
-    std::vector<Position> validMoves;
+std::vector<Move> SimpleGame::getValidMoves(std::vector<Move> bannedMoves) {
+    std::vector<Move> validMoves;
     if (getWinnerIdentity().has_value()) {
         return validMoves;
     }
@@ -108,9 +108,10 @@ std::vector<Position> SimpleGame::getValidMoves(std::vector<Position> bannedMove
     int size = board.getSize();
     for (int row = 0; row < size; row++) {
         for (int col = 0; col < size; col++) {
+            Move move(row, col);
             Position pos(row, col);
-            if (!board.getSymbolAtPosition(pos).has_value() && std::count(bannedMoves.begin(), bannedMoves.end(), pos) == 0) {
-                validMoves.push_back(pos);
+            if (!board.getSymbolAtPosition(pos).has_value() && std::count(bannedMoves.begin(), bannedMoves.end(), move) == 0) {
+                validMoves.push_back(move);
             }
         }
     }
@@ -118,12 +119,12 @@ std::vector<Position> SimpleGame::getValidMoves(std::vector<Position> bannedMove
     return validMoves;
 }
 
-std::optional<Position> SimpleGame::getRandomValidMove() {
-    return getRandomValidMove(std::vector<Position>{});
+std::optional<Move> SimpleGame::getRandomValidMove() {
+    return getRandomValidMove(std::vector<Move>{});
 }
 
-std::optional<Position> SimpleGame::getRandomValidMove(std::vector<Position> bannedMoves) {
-    std::vector<Position> validMoves = getValidMoves(bannedMoves);
+std::optional<Move> SimpleGame::getRandomValidMove(std::vector<Move> bannedMoves) {
+    std::vector<Move> validMoves = getValidMoves(bannedMoves);
     if (validMoves.empty()) {
         return std::nullopt;
     }
